@@ -12,6 +12,9 @@ import twitter # pip install python-twitter
 from lib.blink1_ctypes import Blink1
 from sys import exit
 
+TWITTER_URL = 'https://twitter.com/'
+TWITTER_STATUS_URL = TWITTER_URL + '#!/twitter/status/'
+
 FADE_DURATION_MS = 1000
 
 GREEN = (0, 255, 0)
@@ -68,6 +71,7 @@ def process_stream():
     status_textblob = textblob.TextBlob(status.text)
     sentiment_polarity = status_textblob.sentiment.polarity
     print '%s - (%f)' % (status.text, sentiment_polarity)
+    print '%s%s\n' % (TWITTER_STATUS_URL, status.id)
 
     # Change the color based on the tweet's sentiment polarity
     gradient_step = polarity_to_gradient_step(sentiment_polarity)
