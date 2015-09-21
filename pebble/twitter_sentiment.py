@@ -19,6 +19,7 @@ FADE_DURATION_MS = 1000
 
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
+BLUE = (0, 0, 255)
 OFF = (0, 0, 0)
 
 b1 = Blink1()
@@ -40,7 +41,11 @@ def back_to_black():
   b1.fade_to_rgb(0, *OFF)
 
 def polarity_to_gradient_step(polarity):
-  return max(0, int(((polarity + 1.0) * COLOR_GRADIENT_STEPS / 2.0) - 1))
+  polarity_magnitude = abs(polarity)
+  step = max(0, int((polarity * COLOR_GRADIENT_STEPS) - 1))
+  if polarity < 0:
+    step = COLOR_GRADIENT_STEPS - 1 - step
+  return step
 
 def interpolate_color(color1, color2, step):
   return [channel1 + ((channel2 - channel1) * step / COLOR_GRADIENT_STEPS) for \
@@ -75,7 +80,8 @@ def process_stream():
 
     # Change the color based on the tweet's sentiment polarity
     gradient_step = polarity_to_gradient_step(sentiment_polarity)
-    interpolated_color = interpolate_color(RED, GREEN, gradient_step)
+    upper_gradient_color = GREEN if sentiment_polarity >= 0 else RED
+    interpolated_color = interpolate_color(BLUE, upper_gradient_color, gradient_step)
     b1.fade_to_rgb(FADE_DURATION_MS, *interpolated_color)
 
 if __name__ == '__main__':
