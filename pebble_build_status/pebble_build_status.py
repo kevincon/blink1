@@ -1,14 +1,10 @@
 # Use the blink(1) to communicate the state of our continuous integration system
 # Green is OK, Red is :(, Orange is request failed
-# The vast majority of this code originally written by Kevin Conley (@kevincon)
-
-from os import sys, path
-sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 import atexit
-from lib.blink1_ctypes import Blink1
 import os
 import requests
+import sh
 from time import sleep
 
 WALTER_MASTER_STATUS_URL = 'http://walter.marlinspike.hq.getpebble.com/ci/status/master'
@@ -21,12 +17,19 @@ RED = (255, 0, 0)
 ORANGE = (255, 165, 0)
 OFF = (0, 0, 0)
 
-b1 = Blink1()
 # You can create this environment variable to use a specific blink(1), otherwise it will use id 0
-b1.open_by_id(int(os.getenv('PEBBLE_MASTER_BUILD_STATUS_BLINK1_ID', 0)))
+BLINK1_ID = int(os.getenv('PEBBLE_MASTER_BUILD_STATUS_BLINK1_ID', 0))
+
+BLINK1CMD = sh.Command("blink1-tool")
+BLINK1CMD.bake('-d {}'.format(BLINK1_ID))
+
+def fade_to_color(fade_duration, r, g, b):
+  color_string = '0x{:02x},0x{:02x},0x{:02x}'.format(r, g, b)
+  duration_string = '{}'.format(fade_duration)
+  BLINK1CMD('--rgb', color_string, '--m', duration_string)
 
 def back_to_black():
-  b1.fade_to_rgb(0, *OFF)
+  fade_to_color(0, *OFF)
 
 if __name__ == '__main__':
   # Turn the blink(1) off when script exits
@@ -38,5 +41,5 @@ if __name__ == '__main__':
       color = GREEN if (build_status_page.text == 'Successful') else RED
     except requests.ConnectionError:
       color = ORANGE
-    b1.fade_to_rgb(FADE_DURATION_MS, *color)
+    fade_to_color(FADE_DURATION_MS, *color)
     sleep(STATUS_POLLING_INTERVAL_SECONDS)
