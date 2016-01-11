@@ -22,7 +22,7 @@ OFF = (0, 0, 0)
 BLINK1_ID = int(os.getenv('PEBBLE_MASTER_BUILD_STATUS_BLINK1_ID', 0))
 
 BLINK1CMD = sh.Command('blink1-tool')
-BLINK1CMD.bake('-d {}'.format(BLINK1_ID))
+BLINK1CMD = BLINK1CMD.bake('-d {}'.format(BLINK1_ID))
 
 
 def fade_to_color(fade_duration, r, g, b):
@@ -40,7 +40,11 @@ def main():
         try:
             try:
                 build_status_page = requests.get(WALTER_MASTER_STATUS_URL)
-                color = GREEN if (build_status_page.text == 'Successful') else RED
+                color = ORANGE 
+		if build_status_page.text == 'Successful':
+			color = GREEN
+		elif build_status_page.text == 'Failed':
+			color = RED
             except requests.ConnectionError:
                 color = ORANGE
             fade_to_color(FADE_DURATION_MS, *color)

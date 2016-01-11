@@ -1,4 +1,7 @@
 #!/bin/bash
 
-echo "Starting Caltrain status blink1 daemon..."
-exec python caltrain_status.py
+echo "Starting Pebble Caltrain status blink1 daemon..."
+exec \
+	envdir ./env /bin/sh -c '\
+        	exec python caltrain_status.py \
+	'

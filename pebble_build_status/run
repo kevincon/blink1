@@ -1,4 +1,7 @@
 #!/bin/bash
 
 echo "Starting Pebble build status blink1 daemon..."
-exec python pebble_build_status.py
+exec \
+	envdir ./env /bin/sh -c '\
+        	exec python pebble_build_status.py \
+	'
