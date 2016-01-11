@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "Starting Caltrain status blink1 daemon..."
+exec python caltrain_status.py
